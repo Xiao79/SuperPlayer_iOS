@@ -132,21 +132,24 @@ static UISlider * _volumeSlider;
  *  添加观察者、通知
  */
 - (void)addNotifications {
-    // app退到后台
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBackground:) name:UIApplicationWillResignActiveNotification object:nil];
-    // app进入前台
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterPlayground:) name:UIApplicationDidBecomeActiveNotification object:nil];
+    /*
+     =============== jkpang自定义 =============
+     // app退到后台
+     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBackground:) name:UIApplicationWillResignActiveNotification object:nil];
+     // app进入前台
+     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterPlayground:) name:UIApplicationDidBecomeActiveNotification object:nil];
+     
+     [[NSNotificationCenter defaultCenter] addObserver:self
+                                              selector:@selector(onStatusBarOrientationChange)
+                                                  name:UIApplicationDidChangeStatusBarOrientationNotification
+                                                object:nil];
+     */
     
     // 监测设备方向
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(onDeviceOrientationChange)
                                                  name:UIDeviceOrientationDidChangeNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onStatusBarOrientationChange)
-                                                 name:UIApplicationDidChangeStatusBarOrientationNotification
                                                object:nil];
 }
 
@@ -631,7 +634,10 @@ static UISlider * _volumeSlider;
 }
 
 - (void)_adjustTransform:(UIDeviceOrientation)orientation {
-
+    // =============== jkpang自定义 ============= //
+    if (self.isDeviceRotate) { return; }
+    // ======================================== //
+    
     [UIView beginAnimations:nil context:nil];
     [UIView setAnimationDuration:0.3];
 
@@ -808,40 +814,13 @@ static UISlider * _volumeSlider;
     }
 }
 
-// 状态条变化通知（在前台播放才去处理）
-- (void)onStatusBarOrientationChange {
-    [self onDeviceOrientationChange];
-    return;
-    if (!self.didEnterBackground) {
-        UIInterfaceOrientation orientation = (UIInterfaceOrientation)[UIDevice currentDevice].orientation;
-        SuperPlayerLayoutStyle style = [self defaultStyleForDeviceOrientation:orientation];
-//        [[UIApplication sharedApplication] setStatusBarOrientation:orientation animated:NO];
-        if ([UIApplication sharedApplication].statusBarOrientation != orientation) {
-            [self _adjustTransform:(UIInterfaceOrientation)[UIDevice currentDevice].orientation];
-        }
-        [self _switchToFullScreen:style == SuperPlayerLayoutStyleFullScreen];
-        [self _switchToLayoutStyle:style];
- /*       // 获取到当前状态条的方向
-        UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
-        if (currentOrientation == UIInterfaceOrientationPortrait) {
-            [self setOrientationPortraitConstraint];
-        } else {
-            [self _switchToLayoutStyle:style];
-
-            if (currentOrientation == UIInterfaceOrientationLandscapeRight) {
-                [self _switchToLayoutStyle:style];
-            } else if (currentOrientation == UIDeviceOrientationLandscapeLeft){
-                [self _switchToLayoutStyle:UIInterfaceOrientationLandscapeLeft];
-            }
-        }
-   */
-    }
-}
-
 /**
  *  屏幕方向发生变化会调用这里
  */
 - (void)onDeviceOrientationChange {
+    // =============== jkpang自定义 ============= //
+    if (self.isDeviceRotate) { return; }
+    // ======================================== //
     if (!self.isLoaded) { return; }
     if (self.isLockScreen) { return; }
     if (self.didEnterBackground) { return; };

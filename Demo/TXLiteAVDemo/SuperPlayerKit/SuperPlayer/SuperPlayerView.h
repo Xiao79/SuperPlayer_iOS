@@ -123,3 +123,11 @@ typedef NS_ENUM(NSInteger, SuperPlayerLayoutStyle) {
 - (void)seekToTime:(NSInteger)dragedSeconds;
 
 @end
+
+// =============== jkpang 自定义 ===============
+
+@interface SuperPlayerView ()
+/// 是否为设备旋转
+@property (nonatomic, assign) BOOL isDeviceRotate;
+
+@end
